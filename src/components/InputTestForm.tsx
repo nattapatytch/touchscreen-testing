@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, ChangeEvent } from 'react';
+import { useState, useRef, ChangeEvent, TouchEvent, MouseEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useReport } from '@/context/ReportContext';
 import VirtualKeyboard from './VirtualKeyboard';
@@ -27,12 +27,7 @@ interface TestReports {
   submit: TestReport;
   verticalScroll: TestReport;
   horizontalScroll: TestReport;
-  elementDragDrop: TestReport;
-}
-
-interface DraggableItem {
-  id: string;
-  position: number;
+  drag: TestReport;
 }
 
 // Add type for form data
@@ -49,7 +44,7 @@ interface FormData {
   submit: boolean;
   verticalScroll: boolean;
   horizontalScroll: boolean;
-  elementDragDrop: boolean;
+  drag: boolean;
 }
 
 export default function InputTestForm() {
@@ -68,7 +63,7 @@ export default function InputTestForm() {
     submit: false,
     verticalScroll: false,
     horizontalScroll: false,
-    elementDragDrop: false,
+    drag: false,
   });
 
   const [testReports, setTestReports] = useState<TestReports>({
@@ -84,21 +79,110 @@ export default function InputTestForm() {
     submit: { tested: false, lastTestedAt: null, value: null },
     verticalScroll: { tested: false, lastTestedAt: null, value: null },
     horizontalScroll: { tested: false, lastTestedAt: null, value: null },
-    elementDragDrop: { tested: false, lastTestedAt: null, value: null },
+    drag: { tested: false, lastTestedAt: null, value: null },
   });
-
-  const [draggableItems, setDraggableItems] = useState<DraggableItem[]>([
-    { id: '1', position: 1 },
-    { id: '2', position: 2 },
-    { id: '3', position: 3 },
-    { id: '4', position: 4 },
-  ]);
 
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [activeInput, setActiveInput] = useState<string | null>(null);
 
   const verticalScrollRef = useRef<HTMLDivElement>(null);
   const horizontalScrollRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Drag state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+
+  // Global event listeners for better mobile support
+  useEffect(() => {
+    const handleGlobalMouseMove = (e: globalThis.MouseEvent) => {
+      if (isDragging) {
+        handleDragMoveDOM(e);
+      }
+    };
+
+    const handleGlobalMouseUp = (e: globalThis.MouseEvent) => {
+      if (isDragging) {
+        handleDragEndDOM(e);
+      }
+    };
+
+    const handleGlobalTouchMove = (e: globalThis.TouchEvent) => {
+      if (isDragging) {
+        handleDragMoveDOM(e);
+      }
+    };
+
+    const handleGlobalTouchEnd = (e: globalThis.TouchEvent) => {
+      if (isDragging) {
+        handleDragEndDOM(e);
+      }
+    };
+
+    document.addEventListener('mousemove', handleGlobalMouseMove);
+    document.addEventListener('mouseup', handleGlobalMouseUp);
+    document.addEventListener('touchmove', handleGlobalTouchMove, { passive: false });
+    document.addEventListener('touchend', handleGlobalTouchEnd);
+
+    return () => {
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+      document.removeEventListener('touchmove', handleGlobalTouchMove);
+      document.removeEventListener('touchend', handleGlobalTouchEnd);
+    };
+  }, [isDragging, dragOffset]);
+
+  // DOM event handlers for global listeners
+  const handleDragMoveDOM = (e: globalThis.MouseEvent | globalThis.TouchEvent) => {
+    if (!isDragging || !dragRef.current || !containerRef.current) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const containerRect = containerRef.current.getBoundingClientRect();
+    let clientX: number, clientY: number;
+    
+    if ('touches' in e) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    
+    const newX = clientX - containerRect.left - dragOffset.x;
+    const newY = clientY - containerRect.top - dragOffset.y;
+    
+    // Constrain to container bounds
+    const maxX = containerRect.width - dragRef.current.offsetWidth;
+    const maxY = containerRect.height - dragRef.current.offsetHeight;
+    
+    setDragPosition({
+      x: Math.max(0, Math.min(newX, maxX)),
+      y: Math.max(0, Math.min(newY, maxY)),
+    });
+  };
+
+  const handleDragEndDOM = (e?: globalThis.MouseEvent | globalThis.TouchEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    if (isDragging) {
+      setIsDragging(false);
+      setTestReports(prev => ({
+        ...prev,
+        drag: {
+          tested: true,
+          lastTestedAt: new Date().toLocaleString(),
+          value: 'Element dragged',
+        },
+      }));
+    }
+  };
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -151,6 +235,32 @@ export default function InputTestForm() {
     }
   };
 
+  const handleDragStart = (e: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+    
+    const rect = dragRef.current?.getBoundingClientRect();
+    const containerRect = containerRef.current?.getBoundingClientRect();
+    
+    if (rect && containerRect) {
+      let clientX: number, clientY: number;
+      
+      if ('touches' in e) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+      
+      setDragOffset({
+        x: clientX - rect.left,
+        y: clientY - rect.top,
+      });
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -183,44 +293,6 @@ export default function InputTestForm() {
         </span>
       </div>
     );
-  };
-
-  const handleElementDragStart = (e: React.DragEvent<HTMLDivElement>, item: DraggableItem) => {
-    e.dataTransfer.setData('text/plain', JSON.stringify(item));
-  };
-
-  const handleElementDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleElementDrop = (e: React.DragEvent<HTMLDivElement>, targetPosition: number) => {
-    e.preventDefault();
-    const draggedItem: DraggableItem = JSON.parse(e.dataTransfer.getData('text/plain'));
-    
-    if (draggedItem.position !== targetPosition) {
-      setDraggableItems(prev => {
-        return prev.map(item => {
-          if (item.id === draggedItem.id) {
-            return { ...item, position: targetPosition };
-          }
-          if (item.position === targetPosition) {
-            return { ...item, position: draggedItem.position };
-          }
-          return item;
-        });
-      });
-
-      setTestReports(prev => ({
-        ...prev,
-        elementDragDrop: {
-          tested: true,
-          lastTestedAt: new Date().toLocaleString(),
-          value: `Swapped: Item ${draggedItem.id} (${draggedItem.position} → ${targetPosition})`,
-        },
-      }));
-      setFormData(prev => ({ ...prev, elementDragDrop: true }));
-    }
   };
 
   // Virtual Keyboard Handlers
@@ -477,6 +549,46 @@ export default function InputTestForm() {
             />
           </div>
 
+          {/* Drag Test */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-start">
+              <label className="block font-medium">
+                Drag Test
+              </label>
+              {getTestStatus('drag')}
+            </div>
+            <div 
+              ref={containerRef}
+              className="relative h-32 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50"
+              style={{ touchAction: 'none' }}
+            >
+              <div
+                ref={dragRef}
+                className={`absolute cursor-move bg-gradient-to-r from-blue-400 to-pink-400 text-white p-4 rounded-lg shadow-lg select-none transition-shadow ${
+                  isDragging ? 'shadow-xl scale-105' : ''
+                }`}
+                style={{
+                  transform: `translate(${dragPosition.x}px, ${dragPosition.y}px)`,
+                  touchAction: 'none',
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                  WebkitTouchCallout: 'none',
+                }}
+                onMouseDown={handleDragStart}
+                onTouchStart={handleDragStart}
+                draggable={false}
+              >
+                <div className="text-center">
+                  <div className="text-lg font-bold">Drag Me!</div>
+                  <div className="text-sm opacity-90">Touch and drag to test</div>
+                </div>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500 text-left mt-2">
+              Please drag the element around
+            </p>
+          </div>
+
           {/* Vertical Scroll Test */}
           <div className="space-y-2">
             <div className="flex justify-between items-start">
@@ -491,10 +603,10 @@ export default function InputTestForm() {
               onScroll={(e) => handleScroll('verticalScroll', e.currentTarget)}
             >
               <div className="space-y-4">
-                <div className="flex flex-wrap justify-center gap-1">
+                <div className="flex flex-col gap-1">
                   {Array.from({ length: 100 }).map((_, i) => (
                     <span key={i} className="text-gray-600 text-center w-8 h-8 flex items-center justify-center text-sm">
-                      {" "}
+                      {`${'↓'} `}
                     </span>
                   ))}
                 </div>
@@ -515,14 +627,14 @@ export default function InputTestForm() {
             </div>
             <div
               ref={horizontalScrollRef}
-              className="overflow-x-auto border rounded-lg p-4"
+              className="h-20 overflow-x-auto border rounded-lg p-4"
               onScroll={(e) => handleScroll('horizontalScroll', e.currentTarget)}
             >
               <div className="flex space-x-4 min-w-[200%]">
-                {Array.from({ length: 20 }).map((_, i) => (
+                {Array.from({ length: 100 }).map((_, i) => (
                   <div key={i} className="flex-shrink-0">
                     <p className="text-gray-600 whitespace-nowrap">
-                      {" "}
+                      {`${'→'} `}
                     </p>
                   </div>
                 ))}
@@ -531,68 +643,6 @@ export default function InputTestForm() {
             <p className="text-sm text-gray-500 text-left mt-2">
               Please scroll right
             </p>
-          </div>
-
-          {/* Element Drag and Drop Test */}
-          <div className="space-y-2">
-            <div className="flex justify-between items-start">
-              <label className="block font-medium">
-                Drag and Drop Test
-              </label>
-              {getTestStatus('elementDragDrop')}
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {[1, 2, 3, 4].map((position) => (
-                <div
-                  key={position}
-                  onDragOver={handleElementDragOver}
-                  onDrop={(e) => handleElementDrop(e, position)}
-                  className="h-24 border-2 border-dashed rounded-lg p-4 relative bg-white hover:bg-gray-50 transition-colors"
-                >
-                  <div className="absolute top-2 right-2 text-sm font-medium text-gray-400">
-                    {position}
-                  </div>
-                  {draggableItems.map((item) => {
-                    if (item.position === position) {
-                      return (
-                        <div
-                          key={item.id}
-                          draggable
-                          onDragStart={(e) => handleElementDragStart(e, item)}
-                          className={`
-                            h-full flex items-center justify-center 
-                            cursor-move rounded-lg transition-transform
-                            hover:scale-[0.98] active:scale-[0.95]
-                            ${item.id === '1' ? 'bg-gradient-to-br from-blue-500 to-blue-600' : 
-                              item.id === '2' ? 'bg-gradient-to-br from-emerald-500 to-emerald-600' : 
-                              item.id === '3' ? 'bg-gradient-to-br from-amber-500 to-amber-600' : 
-                              'bg-gradient-to-br from-violet-500 to-violet-600'}
-                          `}
-                        >
-                          <div className="text-center">
-                            <div className="font-medium text-white text-lg">
-                              Item {item.id}
-                            </div>
-                            <div className="text-sm text-white/80">
-                              Current Position: {item.position}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })}
-                </div>
-              ))}
-            </div>
-            <p className="text-sm text-gray-500 mt-2">
-              {testReports.elementDragDrop.tested 
-                ? '✓ Drop successful! Try swapping other items' 
-                : 'Drag and drop items to swap their positions'}
-            </p>
-            <div className="text-xs text-gray-400 mt-1">
-              Each item can be dragged to a different position to swap places
-            </div>
           </div>
 
           {/* Submit Button */}
