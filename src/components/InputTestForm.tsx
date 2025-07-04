@@ -3,6 +3,7 @@
 import { useState, useRef, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useReport } from '@/context/ReportContext';
+import VirtualKeyboard from './VirtualKeyboard';
 
 // Add TestReport interface
 interface TestReport {
@@ -92,6 +93,10 @@ export default function InputTestForm() {
     { id: '3', position: 3 },
     { id: '4', position: 4 },
   ]);
+
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [activeInput, setActiveInput] = useState<string | null>(null);
+  const [isKeyboardClicked, setIsKeyboardClicked] = useState(false);
 
   const verticalScrollRef = useRef<HTMLDivElement>(null);
   const horizontalScrollRef = useRef<HTMLDivElement>(null);
@@ -219,6 +224,75 @@ export default function InputTestForm() {
     }
   };
 
+  // Virtual Keyboard Handlers
+  const handleInputFocus = (inputName: string) => {
+    setActiveInput(inputName);
+    setIsKeyboardVisible(true);
+  };
+
+  const handleInputBlur = () => {
+    setActiveInput(null);
+    setIsKeyboardVisible(false);
+  };
+
+  const handleKeyPress = (key: string) => {
+    if (!activeInput) return;
+
+    // For number input, only allow numbers 0-9 and minus sign
+    if (activeInput === 'number') {
+      const isNumber = /^[0-9]$/.test(key);
+      const isMinus = key === '-';
+      
+      if (!isNumber && !isMinus) {
+        return; // Block all other characters
+      }
+      
+      // Prevent multiple minus signs
+      if (isMinus && formData.number.toString().includes('-')) {
+        return;
+      }
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      [activeInput]: prev[activeInput as keyof FormData] + key,
+    }));
+  };
+
+  const handleBackspace = () => {
+    if (!activeInput) return;
+
+    setFormData(prev => {
+      const currentValue = String(prev[activeInput as keyof FormData]);
+      return {
+        ...prev,
+        [activeInput]: currentValue.slice(0, -1),
+      };
+    });
+  };
+
+  const handleSpace = () => {
+    if (!activeInput) return;
+
+    // Don't allow space in number input
+    if (activeInput === 'number') {
+      return;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      [activeInput]: prev[activeInput as keyof FormData] + ' ',
+    }));
+  };
+
+  const handleEnter = () => {
+    if (!activeInput) return;
+    
+    // Since only number input shows keyboard, just hide it when Enter is pressed
+    setIsKeyboardVisible(false);
+    setActiveInput(null);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="form-wrapper border-2 border-gray-300 rounded-lg p-6 w-1/2 sm:w-[70%] min-w-[300px] bg-white">
@@ -237,6 +311,8 @@ export default function InputTestForm() {
               name="text"
               value={formData.text}
               onChange={handleInputChange}
+              onFocus={() => handleInputFocus('text')}
+              onBlur={handleInputBlur}
               className="w-full p-2 border rounded-lg"
               placeholder="Enter text here"
             />
@@ -256,6 +332,8 @@ export default function InputTestForm() {
               name="number"
               value={formData.number}
               onChange={handleInputChange}
+              onFocus={() => handleInputFocus('number')}
+              onBlur={handleInputBlur}
               className="w-full p-2 border rounded-lg"
             />
           </div>
@@ -356,6 +434,8 @@ export default function InputTestForm() {
               name="textarea"
               value={formData.textarea}
               onChange={handleInputChange}
+              onFocus={() => handleInputFocus('textarea')}
+              onBlur={handleInputBlur}
               className="w-full p-2 border rounded-lg"
               rows={4}
               placeholder="Enter multiple lines of text"
@@ -531,6 +611,15 @@ export default function InputTestForm() {
           </div>
         </form>
       </div>
+      
+      <VirtualKeyboard
+        onKeyPress={handleKeyPress}
+        onBackspace={handleBackspace}
+        onSpace={handleSpace}
+        onEnter={handleEnter}
+        isVisible={isKeyboardVisible}
+        onToggle={() => setIsKeyboardVisible(!isKeyboardVisible)}
+      />
     </div>
   );
 } 
