@@ -99,25 +99,25 @@ export default function InputTestForm() {
   useEffect(() => {
     const handleGlobalMouseMove = (e: globalThis.MouseEvent) => {
       if (isDragging) {
-        handleDragMove(e as any);
+        handleDragMoveDOM(e);
       }
     };
 
     const handleGlobalMouseUp = (e: globalThis.MouseEvent) => {
       if (isDragging) {
-        handleDragEnd(e as any);
+        handleDragEndDOM(e);
       }
     };
 
     const handleGlobalTouchMove = (e: globalThis.TouchEvent) => {
       if (isDragging) {
-        handleDragMove(e as any);
+        handleDragMoveDOM(e);
       }
     };
 
     const handleGlobalTouchEnd = (e: globalThis.TouchEvent) => {
       if (isDragging) {
-        handleDragEnd(e as any);
+        handleDragEndDOM(e);
       }
     };
 
@@ -133,6 +133,56 @@ export default function InputTestForm() {
       document.removeEventListener('touchend', handleGlobalTouchEnd);
     };
   }, [isDragging, dragOffset]);
+
+  // DOM event handlers for global listeners
+  const handleDragMoveDOM = (e: globalThis.MouseEvent | globalThis.TouchEvent) => {
+    if (!isDragging || !dragRef.current || !containerRef.current) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const containerRect = containerRef.current.getBoundingClientRect();
+    let clientX: number, clientY: number;
+    
+    if ('touches' in e) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    
+    const newX = clientX - containerRect.left - dragOffset.x;
+    const newY = clientY - containerRect.top - dragOffset.y;
+    
+    // Constrain to container bounds
+    const maxX = containerRect.width - dragRef.current.offsetWidth;
+    const maxY = containerRect.height - dragRef.current.offsetHeight;
+    
+    setDragPosition({
+      x: Math.max(0, Math.min(newX, maxX)),
+      y: Math.max(0, Math.min(newY, maxY)),
+    });
+  };
+
+  const handleDragEndDOM = (e?: globalThis.MouseEvent | globalThis.TouchEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    if (isDragging) {
+      setIsDragging(false);
+      setTestReports(prev => ({
+        ...prev,
+        drag: {
+          tested: true,
+          lastTestedAt: new Date().toLocaleString(),
+          value: 'Element dragged',
+        },
+      }));
+    }
+  };
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -208,55 +258,6 @@ export default function InputTestForm() {
         x: clientX - rect.left,
         y: clientY - rect.top,
       });
-    }
-  };
-
-  const handleDragMove = (e: MouseEvent | TouchEvent) => {
-    if (!isDragging || !dragRef.current || !containerRef.current) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const containerRect = containerRef.current.getBoundingClientRect();
-    let clientX: number, clientY: number;
-    
-    if ('touches' in e) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-    } else {
-      clientX = e.clientX;
-      clientY = e.clientY;
-    }
-    
-    const newX = clientX - containerRect.left - dragOffset.x;
-    const newY = clientY - containerRect.top - dragOffset.y;
-    
-    // Constrain to container bounds
-    const maxX = containerRect.width - dragRef.current.offsetWidth;
-    const maxY = containerRect.height - dragRef.current.offsetHeight;
-    
-    setDragPosition({
-      x: Math.max(0, Math.min(newX, maxX)),
-      y: Math.max(0, Math.min(newY, maxY)),
-    });
-  };
-
-  const handleDragEnd = (e?: MouseEvent | TouchEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
-    if (isDragging) {
-      setIsDragging(false);
-      setTestReports(prev => ({
-        ...prev,
-        drag: {
-          tested: true,
-          lastTestedAt: new Date().toLocaleString(),
-          value: 'Element dragged',
-        },
-      }));
     }
   };
 
