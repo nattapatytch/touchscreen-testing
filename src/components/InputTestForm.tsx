@@ -96,7 +96,6 @@ export default function InputTestForm() {
 
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [activeInput, setActiveInput] = useState<string | null>(null);
-  const [isKeyboardClicked, setIsKeyboardClicked] = useState(false);
 
   const verticalScrollRef = useRef<HTMLDivElement>(null);
   const horizontalScrollRef = useRef<HTMLDivElement>(null);
