@@ -328,6 +328,16 @@ export default function InputTestForm() {
       ...prev,
       [activeInput]: prev[activeInput as keyof FormData] + key,
     }));
+
+    // Update test report when using virtual keyboard
+    setTestReports(prev => ({
+      ...prev,
+      [activeInput]: {
+        tested: true,
+        lastTestedAt: new Date().toLocaleString(),
+        value: formData[activeInput as keyof FormData] + key,
+      },
+    }));
   };
 
   const handleBackspace = () => {
@@ -335,9 +345,21 @@ export default function InputTestForm() {
 
     setFormData(prev => {
       const currentValue = String(prev[activeInput as keyof FormData]);
+      const newValue = currentValue.slice(0, -1);
+      
+      // Update test report when using virtual keyboard
+      setTestReports(prevReports => ({
+        ...prevReports,
+        [activeInput]: {
+          tested: true,
+          lastTestedAt: new Date().toLocaleString(),
+          value: newValue,
+        },
+      }));
+      
       return {
         ...prev,
-        [activeInput]: currentValue.slice(0, -1),
+        [activeInput]: newValue,
       };
     });
   };
@@ -353,6 +375,16 @@ export default function InputTestForm() {
     setFormData(prev => ({
       ...prev,
       [activeInput]: prev[activeInput as keyof FormData] + ' ',
+    }));
+
+    // Update test report when using virtual keyboard
+    setTestReports(prev => ({
+      ...prev,
+      [activeInput]: {
+        tested: true,
+        lastTestedAt: new Date().toLocaleString(),
+        value: formData[activeInput as keyof FormData] + ' ',
+      },
     }));
   };
 
@@ -380,6 +412,7 @@ export default function InputTestForm() {
               type="text"
               id="text"
               name="text"
+              data-testid="text-input"
               value={formData.text}
               onChange={handleInputChange}
               onFocus={() => handleInputFocus('text')}
@@ -401,6 +434,7 @@ export default function InputTestForm() {
               type="number"
               id="number"
               name="number"
+              data-testid="number-input"
               value={formData.number}
               onChange={handleInputChange}
               onFocus={() => handleInputFocus('number')}
@@ -421,6 +455,7 @@ export default function InputTestForm() {
               type="range"
               id="range"
               name="range"
+              data-testid="range-input"
               value={formData.range}
               onChange={handleInputChange}
               className="w-full"
@@ -437,6 +472,7 @@ export default function InputTestForm() {
                 <input
                   type="checkbox"
                   name="checkbox"
+                  data-testid="checkbox-input"
                   checked={formData.checkbox}
                   onChange={handleInputChange}
                   className="w-5 h-5"
@@ -460,6 +496,7 @@ export default function InputTestForm() {
                     type="radio"
                     name="radio"
                     value={`option${index + 1}`}
+                    data-testid={`radio-option-${index + 1}`}
                     checked={formData.radio === `option${index + 1}`}
                     onChange={handleInputChange}
                     className="w-5 h-5"
@@ -481,6 +518,7 @@ export default function InputTestForm() {
             <select
               id="select"
               name="select"
+              data-testid="select-input"
               value={formData.select}
               onChange={handleInputChange}
               className="w-full p-2 border rounded-lg"
@@ -503,6 +541,7 @@ export default function InputTestForm() {
             <textarea
               id="textarea"
               name="textarea"
+              data-testid="textarea-input"
               value={formData.textarea}
               onChange={handleInputChange}
               onFocus={() => handleInputFocus('textarea')}
@@ -525,6 +564,7 @@ export default function InputTestForm() {
               type="date"
               id="date"
               name="date"
+              data-testid="date-input"
               value={formData.date}
               onChange={handleInputChange}
               className="w-full p-2 border rounded-lg"
@@ -543,6 +583,7 @@ export default function InputTestForm() {
               type="color"
               id="color"
               name="color"
+              data-testid="color-input"
               value={formData.color}
               onChange={handleInputChange}
               className="w-full h-10"
@@ -559,11 +600,13 @@ export default function InputTestForm() {
             </div>
             <div 
               ref={containerRef}
+              data-testid="drag-container"
               className="relative h-32 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50"
               style={{ touchAction: 'none' }}
             >
               <div
                 ref={dragRef}
+                data-testid="drag-element"
                 className={`absolute cursor-move bg-gradient-to-r from-blue-400 to-pink-400 text-white p-4 rounded-lg shadow-lg select-none transition-shadow ${
                   isDragging ? 'shadow-xl scale-105' : ''
                 }`}
@@ -599,6 +642,7 @@ export default function InputTestForm() {
             </div>
             <div
               ref={verticalScrollRef}
+              data-testid="vertical-scroll-container"
               className="h-40 overflow-y-auto border rounded-lg p-4"
               onScroll={(e) => handleScroll('verticalScroll', e.currentTarget)}
             >
@@ -627,6 +671,7 @@ export default function InputTestForm() {
             </div>
             <div
               ref={horizontalScrollRef}
+              data-testid="horizontal-scroll-container"
               className="h-20 overflow-x-auto border rounded-lg p-4"
               onScroll={(e) => handleScroll('horizontalScroll', e.currentTarget)}
             >
@@ -653,6 +698,7 @@ export default function InputTestForm() {
             </div>
             <button
               type="submit"
+              data-testid="submit-button"
               className="w-full bg-gradient-to-r from-blue-400 to-pink-400 text-white py-2 px-4 rounded-lg hover:from-blue-500 hover:to-pink-500 transition-all duration-300 shadow-lg"
             >
               Submit Form and View Report
