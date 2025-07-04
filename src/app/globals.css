@@ -20,7 +20,8 @@
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(to right, #60a5fa, #f472b6);
+  min-height: 100vh;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }

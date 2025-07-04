@@ -17,21 +17,21 @@ export default function ReportPage() {
   };
 
   return (
-    <main className="min-h-screen p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="form-wrapper border-2 border-gray-300 rounded-lg p-6 w-1/2 sm:w-[70%] min-w-[300px] bg-white">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">
             Input Testing Report
           </h1>
           <button
             onClick={handleRestartTest}
-            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+            className="bg-gradient-to-r from-blue-400 to-pink-400 text-white px-6 py-2 rounded-lg hover:from-blue-500 hover:to-pink-500 transition-all duration-300 shadow-lg"
           >
             Start New Test
           </button>
         </div>
         
-        <div className="bg-white shadow-lg rounded-lg p-6">
+        <div>
           <h2 className="text-xl font-bold mb-6">Test Results Summary</h2>
           
           {/* Regular Inputs */}
@@ -88,6 +88,6 @@ export default function ReportPage() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 } 
