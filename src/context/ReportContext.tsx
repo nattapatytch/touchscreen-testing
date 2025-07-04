@@ -22,7 +22,7 @@ interface TestReports {
   submit: TestReport;
   verticalScroll: TestReport;
   horizontalScroll: TestReport;
-  elementDragDrop: TestReport;
+  drag: TestReport;
 }
 
 interface ReportContextType {
