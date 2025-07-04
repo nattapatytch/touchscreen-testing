@@ -1,0 +1,63 @@
+Test Case ID,Functions,Sub Function,Type,Test Data,Test Steps,Expected Results,Status,Date,Tester Remark
+TC001-1,Text Input,handleInputChange,Positive,"Hello World","1. Click text input field, 2. Type 'Hello World'","Input field should focus when clicked, display text 'Hello World' immediately as typed without lag, store the value correctly in component state, show no validation errors",Pass,YYYY-MM-DD,Basic text input
+TC001-2,Text Input,handleInputChange,Positive,"ทดสอบภาษาไทย","1. Click text input field, 2. Change to Thai keyboard, 3. Type 'ทดสอบภาษาไทย'","System should display Thai characters correctly with proper font rendering, maintain correct cursor positioning, store Thai text accurately in the component state",Pass,YYYY-MM-DD,Thai language support
+TC001-3,Text Input,handleInputChange,Negative,"","1. Click text input field, 2. Clear any existing text, 3. Click outside","System should accept empty value without showing errors, maintain visible placeholder text, properly update component state with empty string",Pass,YYYY-MM-DD,Empty validation
+TC001-4,Text Input,handleInputChange,Negative,"<script>alert('test')</script>","1. Click text input field, 2. Type or paste '<script>alert('test')</script>'","System should display script tags as plain text without executing JavaScript, properly escape special characters, store sanitized value in component state",Pass,YYYY-MM-DD,XSS prevention
+
+TC002-1,Number Input,handleInputChange,Positive,42,"1. Click number input field, 2. Type '42'","System should display value '42' without decimal places, store it as number type internally, ensure up/down spinner buttons function correctly",Pass,YYYY-MM-DD,Integer input
+TC002-2,Number Input,handleInputChange,Positive,-123.45,"1. Click number input field, 2. Type '-123.45'","System should accept and display negative decimal value '-123.45' correctly, maintain decimal precision, allow further numerical operations",Pass,YYYY-MM-DD,Negative decimals
+TC002-3,Number Input,handleInputChange,Negative,"abc","1. Click number input field, 2. Type 'abc'","System should prevent non-numeric input, maintain the last valid number value, provide appropriate user feedback",Pass,YYYY-MM-DD,Invalid input
+TC002-4,Number Input,handleInputChange,Positive,999999999,"1. Click number input field, 2. Type '999999999'","System should handle and display large numbers without truncation or scientific notation, maintain full precision in the component state",Pass,YYYY-MM-DD,Large number test
+
+TC003-1,Range Slider,handleInputChange,Positive,50,"1. Click slider, 2. Drag to middle position","Slider should smoothly move to middle position, display value 50, update component state in real-time without lag",Pass,YYYY-MM-DD,Middle value
+TC003-2,Range Slider,handleInputChange,Negative,0,"1. Click slider, 2. Try dragging below minimum","System should prevent slider from going below minimum value 0, maintain the lower boundary, provide visual feedback",Pass,YYYY-MM-DD,Lower bound
+TC003-3,Range Slider,handleInputChange,Negative,100,"1. Click slider, 2. Try dragging above maximum","System should prevent slider from exceeding maximum value 100, maintain the upper boundary, provide visual feedback",Pass,YYYY-MM-DD,Upper bound
+TC003-4,Range Slider,handleInputChange,Positive,"Keyboard arrows","1. Focus on slider, 2. Press arrow keys","System should respond to keyboard arrow inputs with appropriate increment steps, maintain focus state, provide visual feedback",Pass,YYYY-MM-DD,Keyboard control
+
+TC004-1,Checkbox,handleInputChange,Positive,true,"1. Click checkbox","Checkbox should toggle to checked state, update visual appearance, reflect change in component state immediately",Pass,YYYY-MM-DD,Check action
+TC004-2,Checkbox,handleInputChange,Positive,"Space key","1. Tab to checkbox, 2. Press space key","System should allow checkbox toggling via keyboard space key, maintain proper focus states, provide visual feedback",Pass,YYYY-MM-DD,Keyboard toggle
+TC004-3,Checkbox,handleInputChange,Negative,"Rapid toggle","1. Click checkbox repeatedly 10 times","System should handle rapid toggle actions without lag, maintain state consistency, prevent any race conditions",Pass,YYYY-MM-DD,Performance test
+
+TC005-1,Radio Buttons,handleInputChange,Positive,"option1","1. Click first radio option","System should select the clicked radio button, deselect others in the group, update component state accordingly",Pass,YYYY-MM-DD,Single select
+TC005-2,Radio Buttons,handleInputChange,Positive,"Arrow keys","1. Focus on radio group, 2. Press arrow keys","System should allow navigation between radio options using arrow keys, maintain focus state, provide proper accessibility feedback",Pass,YYYY-MM-DD,Keyboard navigation
+TC005-3,Radio Buttons,handleInputChange,Negative,"Multiple clicks","1. Click same radio option multiple times","System should maintain selected state on repeated clicks, prevent deselection, ensure group behavior remains consistent",Pass,YYYY-MM-DD,State persistence
+
+TC006-1,Select Menu,handleInputChange,Positive,"option2","1. Click select menu, 2. Choose option 2","Select menu should open smoothly, allow option selection, close after selection, update component state with selected value",Pass,YYYY-MM-DD,Selection
+TC006-2,Select Menu,handleInputChange,Positive,"Keyboard","1. Focus on select menu, 2. Use arrow keys, 3. Press Enter","System should support keyboard navigation through options, allow selection with Enter key, maintain proper focus management",Pass,YYYY-MM-DD,Keyboard use
+TC006-3,Select Menu,handleInputChange,Positive,"Focus states","1. Tab to select menu","Select menu should show clear focus indicators, maintain proper tab order, provide consistent visual feedback for accessibility",Pass,YYYY-MM-DD,Focus visibility
+
+TC007-1,Textarea,handleInputChange,Positive,"Multiple lines of text","1. Click textarea, 2. Type multiple lines","Textarea should properly handle multiple lines of text, maintain line breaks, provide appropriate scrolling behavior when needed",Pass,YYYY-MM-DD,Multiline input
+TC007-2,Textarea,handleInputChange,Negative,"Large text","1. Paste 1000 lines of text into textarea","System should handle large text input without performance degradation, maintain scrolling smoothness, properly update component state",Pass,YYYY-MM-DD,Performance
+TC007-3,Textarea,handleInputChange,Positive,"Resize handle","1. Drag resize handle of textarea","Textarea should resize smoothly when handle is dragged, maintain content integrity, update layout appropriately",Pass,YYYY-MM-DD,Resize function
+
+TC008-1,Date Picker,handleInputChange,Positive,"2024-03-20","1. Click date picker, 2. Select March 20, 2024","Date picker should allow selection of valid date, format it correctly, update component state with proper date value",Pass,YYYY-MM-DD,Date selection
+TC008-2,Date Picker,handleInputChange,Negative,"1900-01-01","1. Click date picker, 2. Select January 1, 1900","System should handle historical dates correctly, validate date ranges, maintain proper date formatting",Pass,YYYY-MM-DD,Old date
+TC008-3,Date Picker,handleInputChange,Positive,"Keyboard","1. Focus on date picker, 2. Use arrow keys, 3. Press Enter","Date picker should support keyboard navigation and date selection, maintain accessibility, provide clear visual feedback",Pass,YYYY-MM-DD,Keyboard input
+
+TC009-1,Color Picker,handleInputChange,Positive,"#FF5733","1. Click color picker, 2. Select orange-red color","Color picker should display selected color accurately, show correct hex value, update component state with color data",Pass,YYYY-MM-DD,Color selection
+TC009-2,Color Picker,handleInputChange,Positive,"Input hex","1. Click hex input, 2. Type '#FF5733'","System should accept manual hex code input, validate color format, update color preview accordingly",Pass,YYYY-MM-DD,Manual input
+TC009-3,Color Picker,handleInputChange,Positive,"Transparency","1. Adjust alpha/transparency slider","Color picker should handle transparency values correctly, display alpha channel, maintain color accuracy with transparency",Pass,YYYY-MM-DD,Alpha support
+
+TC010-1,Vertical Scroll,handleScroll,Positive,"scroll 50%","1. Scroll content vertically to middle","Vertical scroll should move smoothly to 50% position, update scroll indicators, trigger appropriate scroll events",Pass,YYYY-MM-DD,Normal scroll
+TC010-2,Vertical Scroll,handleScroll,Negative,"Fast scroll","1. Quickly scroll up and down repeatedly","System should handle rapid scrolling smoothly without visual jumps, maintain scroll position accuracy, prevent scroll jank",Pass,YYYY-MM-DD,Scroll performance
+TC010-3,Vertical Scroll,handleScroll,Positive,"Mouse wheel","1. Use mouse wheel to scroll","System should respond smoothly to mouse wheel input, maintain consistent scroll speed, provide appropriate momentum scrolling",Pass,YYYY-MM-DD,Wheel support
+
+TC011-1,Horizontal Scroll,handleScroll,Positive,"scroll 50%","1. Scroll content horizontally to middle","Horizontal scroll should move smoothly to 50% position, update scroll indicators, maintain content alignment",Pass,YYYY-MM-DD,Normal scroll
+TC011-2,Horizontal Scroll,handleScroll,Positive,"Track click","1. Click on scroll track","System should jump to clicked position smoothly, update scroll position accurately, maintain proper content display",Pass,YYYY-MM-DD,Track interaction
+TC011-3,Horizontal Scroll,handleScroll,Positive,"Touch scroll","1. Swipe horizontally on touch device","System should respond smoothly to touch gestures, maintain proper scroll momentum, provide appropriate touch feedback",Pass,YYYY-MM-DD,Touch support
+
+TC012-1,Element Drag Drop,handleElementDrop,Positive,"Item 1 to Pos 4","1. Drag Item 1, 2. Drop at Position 4","System should allow smooth dragging of elements, handle position swapping correctly, update UI to reflect new arrangement",Pass,YYYY-MM-DD,Basic swap
+TC012-2,Element Drag Drop,handleElementDrop,Positive,"Drag animation","1. Start dragging an item","Drag operation should provide smooth animation feedback, maintain visual hierarchy, clearly indicate drag state",Pass,YYYY-MM-DD,Visual feedback
+TC012-3,Element Drag Drop,handleElementDrop,Positive,"Touch drag","1. Touch and drag item on touch device","System should support touch drag operations smoothly, maintain accurate positioning, provide appropriate touch feedback",Pass,YYYY-MM-DD,Touch support
+TC012-4,Element Drag Drop,handleElementDrop,Negative,"Invalid drop","1. Drag item, 2. Drop outside valid zone","System should handle invalid drop locations gracefully, return elements to original positions, provide clear feedback",Pass,YYYY-MM-DD,Error handling
+
+TC013-1,Submit Button,handleSubmit,Positive,"Click submit","1. Fill required fields, 2. Click submit button","System should validate form data, submit successfully, navigate to report page, save all form data correctly",Pass,YYYY-MM-DD,Normal submit
+TC013-2,Submit Button,handleSubmit,Negative,"Empty required","1. Leave required fields empty, 2. Click submit","System should prevent form submission, display validation errors clearly, maintain focus on first invalid field",Pass,YYYY-MM-DD,Form validation
+TC013-3,Submit Button,handleSubmit,Negative,"Double click","1. Double click submit button rapidly","System should prevent multiple form submissions, maintain button disabled state appropriately, avoid duplicate data submission",Pass,YYYY-MM-DD,Double submit
+
+TC014-1,Report Context,useReport,Positive,"Set report data","1. Submit form with test data","Context should update with new report data, maintain data integrity, trigger appropriate UI updates",Pass,YYYY-MM-DD,Context update
+TC014-2,Report Context,useReport,Negative,"Invalid provider","1. Use hook without provider","System should throw clear error message when hook is used incorrectly, prevent application crash, guide developer to proper usage",Pass,YYYY-MM-DD,Error handling
+TC014-3,Report Context,useReport,Negative,"Large dataset","1. Set large amount of report data","System should handle large datasets efficiently, maintain performance, update UI without noticeable lag",Pass,YYYY-MM-DD,Performance
+
+TC015-1,Form Reset,handleReset,Positive,"Reset all","1. Fill form, 2. Click reset button","System should clear all form fields, reset to initial state, maintain proper focus management after reset",Pass,YYYY-MM-DD,Full reset
+TC015-2,Form Reset,handleReset,Positive,"Reset reports","1. Fill form with test reports, 2. Reset","System should maintain test status information while clearing form values, return to proper initial state",Pass,YYYY-MM-DD,Report persistence

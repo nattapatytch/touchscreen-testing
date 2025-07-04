@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Touchscreen Web Testing Application
+
+A web application for testing various HTML input elements and touch interactions. Built with Next.js, TypeScript, and Tailwind CSS.
+
+## Prerequisites
+
+- [Node Version Manager (nvm)](https://github.com/nvm-sh/nvm) - For managing Node.js versions
 
 ## Getting Started
 
-First, run the development server:
+Follow these steps to set up and run the project:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. **Install the correct Node.js version**
+   ```bash
+   nvm install    # Installs Node.js version from .nvmrc
+   nvm use       # Switches to the project's Node.js version
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open the application**
+   Open your browser and navigate to [http://localhost:3000](http://localhost:3000)
+
+## Features
+
+The application includes testing capabilities for:
+
+- Text Input
+- Number Input
+- Range Slider
+- Checkbox
+- Radio Buttons
+- Select/Dropdown Menu
+- Textarea
+- Date Picker
+- Color Picker
+- File Upload
+- Vertical Scrolling
+- Horizontal Scrolling
+
+## Testing Process
+
+1. Interact with each input element to test its functionality
+2. The status of each element will update from "Not Tested" to "Tested" after interaction
+3. Click "Submit Form and View Report" to see a detailed test report
+4. Use the "Start New Test" button on the report page to begin a new testing session
+
+## Project Structure
+
+```
+touchscreen-web/
+├── src/
+│   ├── app/              # Next.js app router
+│   │   ├── api/         # API routes
+│   │   ├── page.tsx     # Main page
+│   │   └── report/      # Report page
+│   └── components/      # React components
+├── .nvmrc               # Node.js version specification
+├── package.json         # Project dependencies
+└── README.md           # Project documentation
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Troubleshooting
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+If you encounter any issues:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Node.js version mismatch**
+   ```bash
+   nvm install
+   nvm use
+   npm install
+   ```
 
-## Learn More
+2. **Port already in use**
+   ```bash
+   # Kill the process using port 3000 and try again
+   npm run dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+3. **Dependencies issues**
+   ```bash
+   # Remove node_modules and reinstall
+   rm -rf node_modules
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development Commands
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm start` - Start production server
+- `npm run lint` - Run ESLint
 
-## Deploy on Vercel
+## Browser Support
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The application is tested and supported on:
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Mobile browsers with touch support
